@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import { name } from "faker";
+import * as Faker from "faker";
 import { Wrapper } from './Wrapper';
 
 
@@ -20,7 +20,7 @@ const App: React.FC = () => {
           hasNextPage: state.items.length < 100,
           isNextPageLoading: false,
           items: [...state.items].concat(
-            new Array(10).fill(true).map(() => ({ name: name.findName() }))
+            new Array(10).fill(true).map(() => ({ firstName: Faker.name.firstName(), lastName: Faker.name.lastName(), suffix: Faker.name.suffix() }))
           )
       })
     }, 2500))

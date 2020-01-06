@@ -34,8 +34,18 @@ export const Wrapper: React.FunctionComponent<Props> = props =>
     if (!isItemLoaded(rowIndex)) {
       content = "Loading...";
     } else {
-      content = items[rowIndex].name;
+      switch (columnIndex) {
+        case 0:
+          content = items[rowIndex].firstName;
+          break;
+        case 1:
+          content = items[rowIndex].lastName;
+          break;
+        case 2:
+          content = items[rowIndex].suffix;
+      
     }
+  }
 
     return <div style={style}>{content}</div>;
   };
