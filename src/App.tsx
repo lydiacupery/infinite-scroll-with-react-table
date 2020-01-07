@@ -1,54 +1,54 @@
 import React, { useState } from 'react';
 import './App.css';
 import * as Faker from "faker";
-import { Wrapper } from './Wrapper';
+import { Table } from './Table';
 
+
+export type ItemType = {
+  firstName: string,
+  lastName: string,
+  suffix: string
+}
 
 const App: React.FC = () => {
-  const [state, setState] = useState<any>({
+  const [state, setState] = useState<{
+    hasNextPage: boolean
+    items: ItemType[],
+  }>({
      hasNextPage: true,
-    isNextPageLoading: false,
     items: []
    
   })
 
-  let loadNextPage = (startIndex: number, stopIndex: number): Promise<any> => {
-    // console.log("loadNextPage with start index", startIndex, " stop index",stopIndex);
-    setState({...state, isNextPageLoading: true})
+  let loadMoreItems = (startIndex: number, stopIndex: number): Promise<any> => {
     return new Promise( () => setTimeout(() => {
       setState({
           hasNextPage: state.items.length < 100,
-          isNextPageLoading: false,
           items: [...state.items].concat(
             new Array(10).fill(true).map(() => ({ firstName: Faker.name.firstName(), lastName: Faker.name.lastName(), suffix: Faker.name.suffix() }))
           )
       })
-    }, 2500))
+    }, 1500))
   };
 
-  const {hasNextPage, isNextPageLoading, items} = state;
+  // the item is loaded if either 1) there are no more pages or 2) there exists an item at that index
+  let isItemLoaded = (index: number) => !state.hasNextPage || !!state.items[index]
+
+  const {hasNextPage, items} = state;
 
   return (
     <>
     <p className="Note">
-      This demo app shows how to create a list that automatically loads the
-      next "page" of data when a user scrolls close to the end of the list.
+      This grid loads the next "page" of data when the user scrolls to the end of loaded data
     </p>
 
-    <Wrapper
+    <Table
       hasNextPage={hasNextPage}
-      isNextPageLoading={isNextPageLoading}
       items={items}
-      loadNextPage={loadNextPage}
+      loadMoreItems={loadMoreItems}
+      isItemLoaded={isItemLoaded}
     />
 
-    <p className="Note">
-      Check out the documentation to learn more:
-      <br />
-      <a href="https://github.com/bvaughn/react-window-infinite-loader#documentation">
-        github.com/bvaughn/react-window-infinite-loader
-      </a>
-    </p>
   </>
   );
 }
