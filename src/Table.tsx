@@ -12,6 +12,11 @@ type Props = {
   loadMoreItems: (startIndex: number, stopIndex: number) => Promise<any>
   //Callback function determining if the item at an index is loaded
   isItemLoaded: (index: number) => boolean
+  scrollState: {
+    rowIndex: number,
+    columnIndex: number
+  }
+  setScrollRowAndColumn: (rowIndex: number, columnIndex: number) => void
 }
 
 export const Table: React.FunctionComponent<Props> = props =>
@@ -27,7 +32,8 @@ export const Table: React.FunctionComponent<Props> = props =>
     } else {
       switch (columnIndex) {
         case 0:
-          content = items[rowIndex].firstName;
+          // content = items[rowIndex].firstName;
+          content = `row:${rowIndex}`
           break;
         case 1:
           content = items[rowIndex].lastName;
@@ -61,12 +67,15 @@ export const Table: React.FunctionComponent<Props> = props =>
           rowCount={itemCount}
           columnCount={3}
           itemData={itemData}
+          initialScrollTop={30 * props.scrollState.rowIndex} // initial offset mutliplied by row hieght px
           onItemsRendered={({
             visibleRowStartIndex,
+            visibleColumnStartIndex,
             visibleRowStopIndex,
             overscanRowStopIndex,
             overscanRowStartIndex,
           }) => {
+            props.setScrollRowAndColumn(visibleRowStartIndex, visibleColumnStartIndex)
             onItemsRendered({
               overscanStartIndex: overscanRowStartIndex,
               overscanStopIndex: overscanRowStopIndex,

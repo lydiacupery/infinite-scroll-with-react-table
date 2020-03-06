@@ -20,6 +20,9 @@
     "react-window-infinite-loader": "^1.0.5",
     "typescript": "~3.7.2"
   },
+  "devDependencies": {
+    "@material-ui/core": "^4.6.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
