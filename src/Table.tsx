@@ -3,6 +3,12 @@ import {  FixedSizeGrid, GridProps, GridChildComponentProps } from "react-window
 import { InfiniteLoader } from "./InfiniteLoader";
 import { ItemType } from "./App";
 
+const ROW_HEIGHT = 30;
+const COLUMN_WIDTH = 200;
+const TABLE_HEIGHT = 200;
+const TABLE_WIDTH = 600;
+const COLUMN_COUNT = 3; 
+
 type Props = {
   // are there still more items to load?
   hasNextPage: boolean,
@@ -19,6 +25,7 @@ type Props = {
   setScrollRowAndColumn: (rowIndex: number, columnIndex: number) => void
 }
 
+
 export const Table: React.FunctionComponent<Props> = props =>
  {
    const {hasNextPage, items, loadMoreItems, isItemLoaded} = props;
@@ -32,8 +39,7 @@ export const Table: React.FunctionComponent<Props> = props =>
     } else {
       switch (columnIndex) {
         case 0:
-          // content = items[rowIndex].firstName;
-          content = `row:${rowIndex}`
+          content = items[rowIndex].firstName;
           break;
         case 1:
           content = items[rowIndex].lastName;
@@ -60,14 +66,14 @@ export const Table: React.FunctionComponent<Props> = props =>
     >
       {({ onItemsRendered, ref }) => (
         <FixedSizeGrid
-          height={200}
-          width={600}
-          rowHeight={30}
-          columnWidth={200}
+          height={TABLE_HEIGHT}
+          width={TABLE_WIDTH}
+          rowHeight={ROW_HEIGHT}
+          columnWidth={COLUMN_WIDTH}
           rowCount={itemCount}
-          columnCount={3}
+          columnCount={COLUMN_COUNT}
           itemData={itemData}
-          initialScrollTop={30 * props.scrollState.rowIndex} // initial offset mutliplied by row hieght px
+          initialScrollTop={ROW_HEIGHT * props.scrollState.rowIndex} 
           onItemsRendered={({
             visibleRowStartIndex,
             visibleColumnStartIndex,

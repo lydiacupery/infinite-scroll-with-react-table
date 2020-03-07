@@ -12,21 +12,26 @@ export type ItemType = {
 }
 
 const App: React.FC = () => {
-  const [state, setState] = useState<{
+  const [loadedItemsState, setLoadedItemsState] = useState<{
     hasNextPage: boolean
     items: ItemType[],
   }>({
      hasNextPage: true,
     items: []
-   
+  })
+
+  const [showTable, setShowTable] = React.useState(true)
+
+  const [scrollState, setScrollState] = React.useState({
+    rowIndex: 0,
+    columnIndex: 0
   })
 
   let loadMoreItems = (startIndex: number, stopIndex: number): Promise<any> => {
-    console.log("load more", {startIndex, stopIndex})
     return new Promise( () => setTimeout(() => {
-      setState({
-          hasNextPage: state.items.length < 100,
-          items: [...state.items].concat(
+      setLoadedItemsState({
+          hasNextPage: loadedItemsState.items.length < 100,
+          items: [...loadedItemsState.items].concat(
             new Array(10).fill(true).map(() => ({ firstName: Faker.name.firstName(), lastName: Faker.name.lastName(), suffix: Faker.name.suffix() }))
           )
       })
@@ -34,15 +39,8 @@ const App: React.FC = () => {
   };
 
   // the item is loaded if either 1) there are no more pages or 2) there exists an item at that index
-  let isItemLoaded = (index: number) => !state.hasNextPage || !!state.items[index]
+  let isItemLoaded = (index: number) => !loadedItemsState.hasNextPage || !!loadedItemsState.items[index]
 
-  const [showTable, setShowTable] = React.useState(true)
-  // scroll state
-  const [scrollState, setScrollState] = React.useState({
-    rowIndex: 0,
-    columnIndex: 0
-  })
-  console.log({scrollState})
 
   const setScrollRowAndColum = React.useCallback((rowIndex: number, columnIndex: number) => {
     setScrollState({rowIndex, columnIndex})
@@ -53,7 +51,7 @@ const App: React.FC = () => {
 
 
 
-  const {hasNextPage, items} = state;
+  const {hasNextPage, items} = loadedItemsState;
 
   return (
     showTable ? 
