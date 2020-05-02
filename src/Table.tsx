@@ -1,67 +1,83 @@
 import React, { useMemo } from "react";
-import {  FixedSizeGrid, GridProps, GridChildComponentProps } from "react-window";
-import { InfiniteLoader } from "./InfiniteLoader";
+import { Column, useBlockLayout, useTable } from "react-table";
+import { FixedSizeGrid } from "react-window";
 import { ItemType } from "./App";
+import { InfiniteLoader } from "./InfiniteLoader";
+import { Item, ItemData } from "./Item";
+
+// todo, move this to another level
+// types file
+
+const columns: Column<ItemType>[] = [
+  {
+    Header: "Name",
+    columns: [
+      {
+        Header: "First Name",
+        accessor: "firstName",
+      },
+      {
+        Header: "Last Name",
+        accessor: "lastName",
+      },
+      {
+        Header: "Suffix",
+        accessor: "suffix",
+      },
+    ],
+  },
+  {
+    Header: "Job",
+    accessor: "job",
+  },
+];
 
 const ROW_HEIGHT = 30;
 const COLUMN_WIDTH = 200;
 const TABLE_HEIGHT = 200;
 const TABLE_WIDTH = 600;
-const COLUMN_COUNT = 3; 
+const COLUMN_COUNT = 3;
 
 type Props = {
   // are there still more items to load?
-  hasNextPage: boolean,
+  hasNextPage: boolean;
   // items loaded so far
-  items: ItemType[],
+  items: ItemType[];
   // Callback function that knows how to load more items
-  loadMoreItems: (startIndex: number, stopIndex: number) => Promise<any>
+  loadMoreItems: (startIndex: number, stopIndex: number) => Promise<any>;
   //Callback function determining if the item at an index is loaded
-  isItemLoaded: (index: number) => boolean
+  isItemLoaded: (index: number) => boolean;
   scrollState: {
-    rowIndex: number,
-    columnIndex: number
-  }
-  setScrollRowAndColumn: (rowIndex: number, columnIndex: number) => void
-}
+    rowIndex: number;
+    columnIndex: number;
+  };
+  setScrollRowAndColumn: (rowIndex: number, columnIndex: number) => void;
+};
 
-
-export const Table: React.FunctionComponent<Props> = props =>
- {
-   const {hasNextPage, items, loadMoreItems, isItemLoaded} = props;
+export const Table: React.FunctionComponent<Props> = (props) => {
+  const { hasNextPage, items, loadMoreItems, isItemLoaded } = props;
 
   const itemCount = hasNextPage ? items.length + 1 : items.length;
 
-  const Item: GridProps["children"] = ({ columnIndex, rowIndex, style }) => {
-    let content;
-    if (!isItemLoaded(rowIndex)) {
-      content = "Loading...";
-    } else {
-      switch (columnIndex) {
-        case 0:
-          content = items[rowIndex].firstName;
-          break;
-        case 1:
-          content = items[rowIndex].lastName;
-          break;
-        case 2:
-          content = items[rowIndex].suffix;
-      
-    }
-  }
-    return <div style={style}>{content}</div>;
-  };
+  // using react table, could pull this up a level
+  const { headers, rows, prepareRow } = useTable({
+    data: items,
+    columns: columns,
+  });
 
-  const itemData: ItemData = useMemo(() => ({
-              isItemLoaded,
-              items
-
-  }), [isItemLoaded, items])
+  const itemData: ItemData = useMemo(
+    () => ({
+      headers,
+      rows,
+      prepareRow,
+    }),
+    [headers, rows, prepareRow]
+  );
 
   return (
     <InfiniteLoader
       isItemLoaded={isItemLoaded}
-      itemCount={itemCount}
+      itemCount={100}
       loadMoreItems={loadMoreItems}
     >
       {({ onItemsRendered, ref }) => (
@@ -73,7 +89,8 @@ export const Table: React.FunctionComponent<Props> = props =>
           rowCount={itemCount}
           columnCount={COLUMN_COUNT}
           itemData={itemData}
-          initialScrollTop={ROW_HEIGHT * props.scrollState.rowIndex} 
+          initialScrollTop={ROW_HEIGHT * props.scrollState.rowIndex}
+          initialScrollLeft={COLUMN_WIDTH * props.scrollState.columnIndex}
           onItemsRendered={({
             visibleRowStartIndex,
             visibleColumnStartIndex,
@@ -81,7 +98,10 @@ export const Table: React.FunctionComponent<Props> = props =>
             overscanRowStopIndex,
             overscanRowStartIndex,
           }) => {
-            props.setScrollRowAndColumn(visibleRowStartIndex, visibleColumnStartIndex)
+            props.setScrollRowAndColumn(
+              visibleRowStartIndex,
+              visibleColumnStartIndex
+            );
             onItemsRendered({
               overscanStartIndex: overscanRowStartIndex,
               overscanStopIndex: overscanRowStopIndex,
@@ -96,36 +116,4 @@ export const Table: React.FunctionComponent<Props> = props =>
       )}
     </InfiniteLoader>
   );
-}
-
-
-type ItemData = {
-  isItemLoaded: (index: number) => boolean
-  items: ItemType[],
-}
-
-
-export const Item: React.FunctionComponent<Omit<GridChildComponentProps, "data"> & {
-  data: ItemData
-}>  = props => {
-    const {rowIndex, columnIndex, data, style} = props;
-    const {isItemLoaded, items} = data
-    let content;
-    if (!isItemLoaded(rowIndex)) {
-      content = "Loading...";
-    } else {
-      switch (columnIndex) {
-        case 0:
-          content = items[rowIndex].firstName;
-          break;
-        case 1:
-          content = items[rowIndex].lastName;
-          break;
-        case 2:
-          content = items[rowIndex].suffix;
-      
-    }
-  }
-    return <div style={style}>{content}</div>;
-
-}
+};
