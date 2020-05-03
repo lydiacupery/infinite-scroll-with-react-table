@@ -4,8 +4,6 @@ import { GridChildComponentProps } from "react-window";
 import { ItemType } from "./App";
 
 export type ItemData = {
-  // isItemLoaded: (index: number) => boolean;
-  // items: ItemType[];
   rows: Row<ItemType>[];
   prepareRow: (row: Row<ItemType>) => void;
 };
@@ -23,7 +21,6 @@ export const Item: React.FunctionComponent<
     return <div style={style}> LOADING... </div>;
   }
 
-  // if row has not been prepared, prepare row
   if (!row.getRowProps) {
     prepareRow(row);
   }

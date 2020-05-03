@@ -3,6 +3,7 @@ import "./App.css";
 import * as Faker from "faker";
 import { Table } from "./Table";
 import { Button, Typography, Box, Grid } from "@material-ui/core";
+import { ITEMS_TO_LOAD_COUNT } from "./constants";
 
 export type ItemType = {
   firstName: string;
@@ -28,11 +29,10 @@ const App: React.FC = () => {
   });
 
   let loadMoreItems = (startIndex: number, stopIndex: number): Promise<any> => {
-    console.log({ startIndex, stopIndex });
     return new Promise(() =>
       setTimeout(() => {
         setLoadedItemsState({
-          hasNextPage: loadedItemsState.items.length < 100,
+          hasNextPage: loadedItemsState.items.length < ITEMS_TO_LOAD_COUNT,
           items: [...loadedItemsState.items].concat(
             new Array(10).fill(true).map(() => ({
               firstName: Faker.name.firstName(),

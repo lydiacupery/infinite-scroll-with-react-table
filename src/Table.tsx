@@ -1,12 +1,8 @@
 import React, { useMemo } from "react";
-import { Column, useBlockLayout, useTable } from "react-table";
-import { FixedSizeGrid } from "react-window";
+import { Column, useTable } from "react-table";
 import { ItemType } from "./App";
-import { InfiniteLoader } from "./InfiniteLoader";
-import { Item, ItemData } from "./Item";
-
-// todo, move this to another level
-// types file
+import { ItemData } from "./Item";
+import { TableContent } from "./TableContent";
 
 const columns: Column<ItemType>[] = [
   {
@@ -32,12 +28,6 @@ const columns: Column<ItemType>[] = [
   },
 ];
 
-const ROW_HEIGHT = 30;
-const COLUMN_WIDTH = 200;
-const TABLE_HEIGHT = 200;
-const TABLE_WIDTH = 600;
-const COLUMN_COUNT = 3;
-
 type Props = {
   // are there still more items to load?
   hasNextPage: boolean;
@@ -55,7 +45,14 @@ type Props = {
 };
 
 export const Table: React.FunctionComponent<Props> = (props) => {
-  const { hasNextPage, items, loadMoreItems, isItemLoaded } = props;
+  const {
+    hasNextPage,
+    items,
+    loadMoreItems,
+    isItemLoaded,
+    scrollState,
+    setScrollRowAndColumn,
+  } = props;
 
   const itemCount = hasNextPage ? items.length + 1 : items.length;
 
@@ -73,47 +70,15 @@ export const Table: React.FunctionComponent<Props> = (props) => {
     }),
     [headers, rows, prepareRow]
   );
-
   return (
-    <InfiniteLoader
-      isItemLoaded={isItemLoaded}
-      itemCount={100}
+    <TableContent
+      hasNextPage={hasNextPage}
       loadMoreItems={loadMoreItems}
-    >
-      {({ onItemsRendered, ref }) => (
-        <FixedSizeGrid
-          height={TABLE_HEIGHT}
-          width={TABLE_WIDTH}
-          rowHeight={ROW_HEIGHT}
-          columnWidth={COLUMN_WIDTH}
-          rowCount={itemCount}
-          columnCount={COLUMN_COUNT}
-          itemData={itemData}
-          initialScrollTop={ROW_HEIGHT * props.scrollState.rowIndex}
-          initialScrollLeft={COLUMN_WIDTH * props.scrollState.columnIndex}
-          onItemsRendered={({
-            visibleRowStartIndex,
-            visibleColumnStartIndex,
-            visibleRowStopIndex,
-            overscanRowStopIndex,
-            overscanRowStartIndex,
-          }) => {
-            props.setScrollRowAndColumn(
-              visibleRowStartIndex,
-              visibleColumnStartIndex
-            );
-            onItemsRendered({
-              overscanStartIndex: overscanRowStartIndex,
-              overscanStopIndex: overscanRowStopIndex,
-              visibleStartIndex: visibleRowStartIndex,
-              visibleStopIndex: visibleRowStopIndex,
-            });
-          }}
-          ref={ref}
-        >
-          {Item}
-        </FixedSizeGrid>
-      )}
-    </InfiniteLoader>
+      isItemLoaded={isItemLoaded}
+      scrollState={scrollState}
+      setScrollRowAndColumn={setScrollRowAndColumn}
+      itemCount={itemCount}
+      itemData={itemData}
+    />
   );
 };
